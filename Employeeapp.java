@@ -6,46 +6,66 @@ import java.io.FileWriter;
 import java.sql.*;
 
 public class EmployeeApp extends JFrame {
-    private JTextField nameField, roleField, emailField, deptField, salaryField, searchField;
+    private JTextField nameField, roleField, emailField, salaryField, searchField;
+    private JComboBox<String> deptDropdown;
     private DefaultTableModel tableModel;
     private JTable table;
     private Connection conn;
 
+    // Software Development Departments for AM & Devs
+    private final String[] DEPARTMENTS = {
+        "Frontend Engineering", 
+        "Backend Engineering", 
+        "Full Stack Engineering", 
+        "DevOps & Infrastructure", 
+        "QA & Testing", 
+        "UI/UX Design", 
+        "Product Management"
+    };
+
     public EmployeeApp() {
-        setTitle("Employee Management System V2");
-        setSize(900, 500);
+        setTitle("AM & Devs — Software Engineering Management System");
+        setSize(950, 520);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         initDatabase();
 
-        // Top Panel: Search & Export
+        // Top Panel: Branding & Search / Export
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Search Name/Role:"));
+        JLabel brandLabel = new JLabel("AM & Devs | ");
+        brandLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        topPanel.add(brandLabel);
+
+        topPanel.add(new JLabel("Search Dev/Role:"));
         searchField = new JTextField(15);
         JButton searchButton = new JButton("Search");
-        JButton exportButton = new JButton("Export to CSV");
+        JButton exportButton = new JButton("Export Roster (CSV)");
         topPanel.add(searchField);
         topPanel.add(searchButton);
         topPanel.add(exportButton);
         add(topPanel, BorderLayout.NORTH);
 
-        // Center Panel: Data Table
-        tableModel = new DefaultTableModel(new String[]{"ID", "Name", "Role", "Email", "Department", "Salary"}, 0);
+        // Center Panel: Developer Data Table
+        tableModel = new DefaultTableModel(new String[]{"ID", "Developer Name", "Role", "Email", "Department", "Salary ($)"}, 0);
         table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Bottom Panel: Form Inputs & Actions
         JPanel bottomPanel = new JPanel(new GridLayout(2, 6, 5, 5));
         bottomPanel.add(new JLabel("Name:")); nameField = new JTextField(); bottomPanel.add(nameField);
-        bottomPanel.add(new JLabel("Role:")); roleField = new JTextField(); bottomPanel.add(roleField);
+        bottomPanel.add(new JLabel("Role (e.g., Sr. Dev):")); roleField = new JTextField(); bottomPanel.add(roleField);
         bottomPanel.add(new JLabel("Email:")); emailField = new JTextField(); bottomPanel.add(emailField);
-        bottomPanel.add(new JLabel("Dept:")); deptField = new JTextField(); bottomPanel.add(deptField);
-        bottomPanel.add(new JLabel("Salary:")); salaryField = new JTextField(); bottomPanel.add(salaryField);
         
-        JButton addButton = new JButton("Add");
-        JButton updateButton = new JButton("Update");
-        JButton deleteButton = new JButton("Delete");
+        bottomPanel.add(new JLabel("Dept:")); 
+        deptDropdown = new JComboBox<>(DEPARTMENTS); 
+        bottomPanel.add(deptDropdown);
+        
+        bottomPanel.add(new JLabel("Salary ($):")); salaryField = new JTextField(); bottomPanel.add(salaryField);
+        
+        JButton addButton = new JButton("Add Developer");
+        JButton updateButton = new JButton("Update Record");
+        JButton deleteButton = new JButton("Remove Developer");
         bottomPanel.add(addButton);
         bottomPanel.add(updateButton);
         bottomPanel.add(deleteButton);
@@ -81,9 +101,10 @@ public class EmployeeApp extends JFrame {
             if (searchTerm.isEmpty()) {
                 pstmt = conn.prepareStatement("SELECT * FROM employees");
             } else {
-                pstmt = conn.prepareStatement("SELECT * FROM employees WHERE name LIKE ? OR role LIKE ?");
+                pstmt = conn.prepareStatement("SELECT * FROM employees WHERE name LIKE ? OR role LIKE ? OR department LIKE ?");
                 pstmt.setString(1, "%" + searchTerm + "%");
                 pstmt.setString(2, "%" + searchTerm + "%");
+                pstmt.setString(3, "%" + searchTerm + "%");
             }
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -103,7 +124,7 @@ public class EmployeeApp extends JFrame {
             return false;
         }
         if (!emailField.getText().contains("@")) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid email address containing '@'.");
+            JOptionPane.showMessageDialog(this, "Please enter a valid email address.");
             return false;
         }
         try {
@@ -131,7 +152,7 @@ public class EmployeeApp extends JFrame {
     private void updateEmployee() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Select an employee to update.");
+            JOptionPane.showMessageDialog(this, "Select a team member to update.");
             return; 
         }
         if (!validateInputs()) return;
@@ -162,7 +183,7 @@ public class EmployeeApp extends JFrame {
     }
 
     private void exportToCSV() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("employees_export.csv"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("am_and_devs_roster.csv"))) {
             for (int i = 0; i < tableModel.getColumnCount(); i++) {
                 writer.write(tableModel.getColumnName(i) + (i == tableModel.getColumnCount() - 1 ? "" : ","));
             }
@@ -173,10 +194,10 @@ public class EmployeeApp extends JFrame {
                 }
                 writer.newLine();
             }
-            JOptionPane.showMessageDialog(this, "Data exported successfully to employees_export.csv!");
+            JOptionPane.showMessageDialog(this, "Roster exported to am_and_devs_roster.csv!");
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error exporting data.");
+            JOptionPane.showMessageDialog(this, "Error exporting roster.");
         }
     }
 
@@ -184,7 +205,7 @@ public class EmployeeApp extends JFrame {
         pstmt.setString(1, nameField.getText().trim());
         pstmt.setString(2, roleField.getText().trim());
         pstmt.setString(3, emailField.getText().trim());
-        pstmt.setString(4, deptField.getText().trim());
+        pstmt.setString(4, deptDropdown.getSelectedItem().toString());
         pstmt.setDouble(5, Double.parseDouble(salaryField.getText().trim()));
     }
 
@@ -194,14 +215,14 @@ public class EmployeeApp extends JFrame {
             nameField.setText(tableModel.getValueAt(row, 1).toString());
             roleField.setText(tableModel.getValueAt(row, 2).toString());
             emailField.setText(tableModel.getValueAt(row, 3).toString());
-            deptField.setText(tableModel.getValueAt(row, 4).toString());
+            deptDropdown.setSelectedItem(tableModel.getValueAt(row, 4).toString());
             salaryField.setText(tableModel.getValueAt(row, 5).toString());
         }
     }
 
     private void clearFields() {
         nameField.setText(""); roleField.setText(""); emailField.setText(""); 
-        deptField.setText(""); salaryField.setText(""); table.clearSelection();
+        salaryField.setText(""); deptDropdown.setSelectedIndex(0); table.clearSelection();
     }
 
     public static void main(String[] args) {
