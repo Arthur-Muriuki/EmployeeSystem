@@ -12,7 +12,6 @@ public class EmployeeApp extends JFrame {
     private JTable table;
     private Connection conn;
 
-    // Software Development Departments for AM & Devs
     private final String[] DEPARTMENTS = {
         "Frontend Engineering", 
         "Backend Engineering", 
@@ -24,14 +23,15 @@ public class EmployeeApp extends JFrame {
     };
 
     public EmployeeApp() {
-        setTitle("AM & Devs — Software Engineering Management System");
+        // 1. Replaced em-dash with standard hyphen to fix 'â€“' mojibake
+        setTitle("AM & Devs - Software Engineering Management System");
         setSize(950, 520);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         initDatabase();
 
-        // Top Panel: Branding & Search / Export
+        // Top Panel
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel brandLabel = new JLabel("AM & Devs | ");
         brandLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -46,22 +46,23 @@ public class EmployeeApp extends JFrame {
         topPanel.add(exportButton);
         add(topPanel, BorderLayout.NORTH);
 
-        // Center Panel: Developer Data Table
-        tableModel = new DefaultTableModel(new String[]{"ID", "Developer Name", "Role", "Email", "Department", "Salary ($)"}, 0);
+        // 2. Updated Table Column Header to KSh
+        tableModel = new DefaultTableModel(new String[]{"ID", "Developer Name", "Role", "Email", "Department", "Salary (KSh)"}, 0);
         table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // Bottom Panel: Form Inputs & Actions
+        // Bottom Panel
         JPanel bottomPanel = new JPanel(new GridLayout(2, 6, 5, 5));
         bottomPanel.add(new JLabel("Name:")); nameField = new JTextField(); bottomPanel.add(nameField);
-        bottomPanel.add(new JLabel("Role (e.g., Sr. Dev):")); roleField = new JTextField(); bottomPanel.add(roleField);
+        bottomPanel.add(new JLabel("Role:")); roleField = new JTextField(); bottomPanel.add(roleField);
         bottomPanel.add(new JLabel("Email:")); emailField = new JTextField(); bottomPanel.add(emailField);
         
         bottomPanel.add(new JLabel("Dept:")); 
         deptDropdown = new JComboBox<>(DEPARTMENTS); 
         bottomPanel.add(deptDropdown);
         
-        bottomPanel.add(new JLabel("Salary ($):")); salaryField = new JTextField(); bottomPanel.add(salaryField);
+        // 3. Updated Form Field Label to KSh
+        bottomPanel.add(new JLabel("Salary (KSh):")); salaryField = new JTextField(); bottomPanel.add(salaryField);
         
         JButton addButton = new JButton("Add Developer");
         JButton updateButton = new JButton("Update Record");
@@ -71,12 +72,10 @@ public class EmployeeApp extends JFrame {
         bottomPanel.add(deleteButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Selection Listener
         table.getSelectionModel().addListSelectionListener(e -> populateFieldsFromTable());
 
         loadData("");
 
-        // Button Actions
         addButton.addActionListener(e -> addEmployee());
         updateButton.addActionListener(e -> updateEmployee());
         deleteButton.addActionListener(e -> deleteEmployee());
