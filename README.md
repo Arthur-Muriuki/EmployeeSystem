@@ -1,18 +1,23 @@
-# Employee Management System
+# AM & Devs — Software Engineering Management System
 
-A lightweight desktop application built with Java Swing and SQLite for managing employee records.
+A desktop application built with Java Swing and SQLite for managing developer rosters and software teams at AM & Devs.
+
+![AM & Devs Dashboard](dashboard.png)
 
 ## Features
-* **Add Employees:** Input new employee names and roles.
-* **View Records:** Display all employees in a clean tabular interface.
-* **Local Storage:** Zero-configuration local database using SQLite.
+* **Developer Tracking:** Manage developer names, software roles, email addresses, departments, and salaries (in KSh).
+* **Search & Filter:** Instantly filter developers by name, role, or department.
+* **CSV Export:** Export team rosters directly to `am_and_devs_roster.csv`.
+* **Input Validation:** Prevents invalid emails and non-numeric salary inputs.
+* **Local SQLite Database:** Zero-configuration local database using `employees.db`.
 
 ## Requirements
 * Java Development Kit (JDK) 8 or higher
-* SQLite JDBC Driver (v3.42.0.0+)
+* SQLite JDBC Driver (`lib/sqlite-jdbc.jar`)
 
 ## How to Run
-1. Clone this repository.
-2. Ensure the SQLite JDBC driver is in the `lib` folder.
-3. Compile: `javac -cp ".;lib/sqlite-jdbc.jar" EmployeeApp.java` (Use `:` instead of `;` on Mac/Linux)
-4. Run: `java -cp ".;lib/sqlite-jdbc.jar" EmployeeApp`
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/YOUR_USERNAME/EmployeeSystem.git](https://github.com/YOUR_USERNAME/EmployeeSystem.git)
+   cd EmployeeSystem
